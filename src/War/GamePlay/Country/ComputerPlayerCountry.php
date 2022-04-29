@@ -19,7 +19,12 @@ class ComputerPlayerCountry extends BaseCountry {
    *   The country that will be attacked, NULL if none will be.
    */
   public function chooseToAttack(): ?CountryInterface {
-    // @TODO
+    if(rand(0,1) == 0){
+      return NULL;
+    } else{
+      $key = array_rand($this->neighbors);
+      return $this->neighbors[$key];
+    }
   }
 
 }

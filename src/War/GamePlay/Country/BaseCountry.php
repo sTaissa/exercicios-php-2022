@@ -112,7 +112,7 @@ class BaseCountry implements CountryInterface {
     foreach($conqueredCountryNeighbors as $conqueredCountryNeighbor){
       $conqueredCountryName = $conqueredCountry->getName();
 
-      if(strcasecmp($conqueredCountryName, $this->getName()) == 1){
+      if(strcasecmp($conqueredCountryName, $this->name) == 1){
         if(!in_array($conqueredCountryNeighbor, $this->neighbors)){
           array_push($this->neighbors, $conqueredCountryNeighbor);
         }
