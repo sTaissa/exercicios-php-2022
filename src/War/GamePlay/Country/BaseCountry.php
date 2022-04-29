@@ -103,24 +103,23 @@ class BaseCountry implements CountryInterface {
    * Register the neighbors of the conquered country as your own. Making sure there are no
    * duplicate countries in the array, nor the current country itself. 
    * 
-   * As the country was conquered, it must no longer belong to the list of neighbors.
-   * 
    * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $conqueredCountry
    *   The country that has just been conquered.
    */
   public function conquer(CountryInterface $conqueredCountry): void{
     $conqueredCountryNeighbors = $conqueredCountry->getNeighbors();
 
-    foreach ($conqueredCountryNeighbors as $conqueredCountryNeighbor){
-      if(!in_array($conqueredCountryNeighbor, $this->neighbors)){
-        if($conqueredCountryNeighbor != $this->name){
+    foreach($conqueredCountryNeighbors as $conqueredCountryNeighbor){
+      $conqueredCountryName = $conqueredCountry->getName();
+
+      if(strcasecmp($conqueredCountryName, $this->getName()) == 1){
+        if(!in_array($conqueredCountryNeighbor, $this->neighbors)){
           array_push($this->neighbors, $conqueredCountryNeighbor);
         }
+
+        $conqueredCountryNeighbor->updateNeighbors($conqueredCountry, $this);
       }
     }
-
-    $key = array_search($conqueredCountry->getName(), $this->neighbors);
-    unset($this->neighbors[$key]);
   }
 
   /**
@@ -131,5 +130,24 @@ class BaseCountry implements CountryInterface {
    */
   public function killTroops(int $killedTroops): void{
     $this->troops = $this->troops - $killedTroops;
+  }
+
+  /**
+   * Called when one country conquers another.
+   *
+   * Updates the neighbors list of surrounding countries.
+   * 
+   * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $conqueredCountry
+   *  The country that has just been conquered.
+   * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $conqueredCountry
+   *  The country that has just conquered another.
+   */
+  protected function updateNeighbors(CountryInterface $conqueredCountry, CountryInterface $conquerorCountry): void{
+    $key = array_search($conqueredCountry, $this->neighbors);
+    unset($this->neighbors[$key]);
+
+    if(!in_array($conquerorCountry, $this->neighbors)){
+      array_push($this->neighbors, $conquerorCountry);
+    }
   }
 }
