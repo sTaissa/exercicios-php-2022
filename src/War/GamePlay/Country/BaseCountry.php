@@ -100,7 +100,10 @@ class BaseCountry implements CountryInterface {
   /**
    * Called when, after a battle, the defending country end up with 0 troops.
    *
-   * Register the neighbors of the conquered country as your own.
+   * Register the neighbors of the conquered country as your own. Making sure there are no
+   * duplicate countries in the array, nor the current country itself. 
+   * 
+   * As the country was conquered, it must no longer belong to the list of neighbors.
    * 
    * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $conqueredCountry
    *   The country that has just been conquered.
@@ -109,10 +112,15 @@ class BaseCountry implements CountryInterface {
     $conqueredCountryNeighbors = $conqueredCountry->getNeighbors();
 
     foreach ($conqueredCountryNeighbors as $conqueredCountryNeighbor){
-      if (!in_array($conqueredCountryNeighbor, $neighbors)){
-        array_push($neighbors, $conqueredCountryNeighbor);
+      if(!in_array($conqueredCountryNeighbor, $this->neighbors)){
+        if($conqueredCountryNeighbor != $this->name){
+          array_push($this->neighbors, $conqueredCountryNeighbor);
+        }
       }
     }
+
+    $key = array_search($conqueredCountry->getName(), $this->neighbors);
+    unset($this->neighbors[$key]);
   }
 
   /**
