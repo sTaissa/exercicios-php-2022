@@ -34,7 +34,7 @@ class Battlefield implements BattlefieldInterface {
     }
 
     for($i = 0; $i < $numberOfTroops; $i++){
-        array_push(rand(1,6), $dice);
+        array_push(rand(1,6), $dices);
     }
 
     return rsort($dices);
@@ -52,7 +52,7 @@ class Battlefield implements BattlefieldInterface {
    * @param int[] $defendingDice
    *   The number
    */
-  
+
   public function computeBattle(CountryInterface $attackingCountry, array $attackingDice, CountryInterface $defendingCountry, array $defendingDice): void{
     $attackingDiceCount = count($attackingDice);
     $defendingDiceCount = count($defendingDice);
