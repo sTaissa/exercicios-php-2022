@@ -9,7 +9,7 @@ use Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface;
  */
 class Battlefield implements BattlefieldInterface {
 
-/**
+  /**
    * Rolls the dice for a country.
    *
    * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $country
@@ -26,17 +26,54 @@ class Battlefield implements BattlefieldInterface {
    *       the one rolling the dice.
    */
   public function rollDice(CountryInterface $country, bool $isAtacking): array{
-      $numberOfTroops = $country->getNumberOfTroops();
-      $dices = [];
+    $numberOfTroops = $country->getNumberOfTroops();
+    $dices = [];
 
-      if($isAtacking){
-          $numberOfTroops = $numberOfTroops - 1;
-      }
+    if($isAtacking){
+        $numberOfTroops = $numberOfTroops - 1;
+    }
 
-      for($i = 0; $i < $numberOfTroops; $i++){
-          array_push(rand(1,6), $dice);
-      }
+    for($i = 0; $i < $numberOfTroops; $i++){
+        array_push(rand(1,6), $dice);
+    }
 
-      rsort($dices);
+    return rsort($dices);
+  }
+
+  /**
+   * Computes the winners and losers of a battle.
+   *
+   * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $attackingCountry
+   *   The country that is attacking.
+   * @param int[] $attackingDice
+   *   The number
+   * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $defendingCountry
+   *   The country that is defending from the attack.
+   * @param int[] $defendingDice
+   *   The number
+   */
+  
+  public function computeBattle(CountryInterface $attackingCountry, array $attackingDice, CountryInterface $defendingCountry, array $defendingDice): void{
+    $attackingDiceCount = count($attackingDice);
+    $defendingDiceCount = count($defendingDice);
+    $attackingCountryDefeats = 0;
+    $defendingCountryDefeats = 0;
+
+    if($attackingDiceCount < $defendingDiceCount){
+        $smallestDice = $attackingDiceCount;
+    } else{
+        $smallestDice = $defendingDiceCount;
+    }
+
+    for($i = 0; i < $smallestDice; $i++){
+        if($attackingDice[$i] < $defendingDice[$i]){
+            $attackingCountryDefeats++;
+        } else{
+            $defendingCountryDefeats++;
+        }
+    }
+
+    $attackingCountry->killTroops($attackingCountryDefeats);
+    $defendingCountry->killTroops($defendingCountryDefeats);
   }
 }

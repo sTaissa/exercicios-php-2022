@@ -129,7 +129,7 @@ class BaseCountry implements CountryInterface {
    *   The number of troops killed in battle.
    */
   public function killTroops(int $killedTroops): void{
-    $this->troops = $this->troops - $killedTroops;
+    $this->troops -= $killedTroops;
   }
 
   /**
