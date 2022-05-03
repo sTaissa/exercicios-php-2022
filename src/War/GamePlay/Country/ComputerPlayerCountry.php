@@ -14,17 +14,21 @@ class ComputerPlayerCountry extends BaseCountry {
    * return NULL. If it chooses to attack, return a neighbor to attack.
    *
    * It must NOT be a conquered country.
+   * 
+   * If the country has only one troop, it cannot attack, that troop must 
+   * stay to defend the country.
    *
    * @return \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface|null
    *   The country that will be attacked, NULL if none will be.
    */
   public function chooseToAttack(): ?CountryInterface {
-    if(rand(0,1) == 0){
+    if($this->getNumberOfTroops() == 1){
+      return NULL;
+    } else if(rand(0,2) == 0){
       return NULL;
     } else{
       $key = array_rand($this->neighbors);
       return $this->neighbors[$key];
-    }
+    } 
   }
-
 }

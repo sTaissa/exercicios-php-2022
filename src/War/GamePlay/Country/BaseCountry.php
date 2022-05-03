@@ -29,6 +29,13 @@ class BaseCountry implements CountryInterface {
   protected $troops = 3;
 
   /**
+   * The number of conquered countries.
+   * 
+   * @var int
+   */
+  protected $conqueredCountries = 0;
+
+  /**
    * Builder.
    *
    * @param string $name
@@ -110,9 +117,9 @@ class BaseCountry implements CountryInterface {
     $conqueredCountryNeighbors = $conqueredCountry->getNeighbors();
 
     foreach($conqueredCountryNeighbors as $conqueredCountryNeighbor){
-      $conqueredCountryName = $conqueredCountry->getName();
+      $conqueredCountryNeighborName = $conqueredCountryNeighbor->getName();
 
-      if(strcasecmp($conqueredCountryName, $this->name) == 1){
+      if(strcasecmp($conqueredCountryNeighborName, $this->name) != 0){
         if(!in_array($conqueredCountryNeighbor, $this->neighbors)){
           array_push($this->neighbors, $conqueredCountryNeighbor);
         }
@@ -120,6 +127,11 @@ class BaseCountry implements CountryInterface {
         $conqueredCountryNeighbor->updateNeighbors($conqueredCountry, $this);
       }
     }
+
+    $key = array_search($conqueredCountry, $this->neighbors);
+    unset($this->neighbors[$key]);
+
+    $this->conqueredCountries++;
   }
 
   /**
@@ -149,5 +161,14 @@ class BaseCountry implements CountryInterface {
     if(!in_array($conquerorCountry, $this->neighbors)){
       array_push($this->neighbors, $conquerorCountry);
     }
+  }
+
+  /**
+   * Called at the end of each round.
+   * 
+   * Increases the number of troops by 3, and an extra 1 troop for each conquered country
+   */
+  public function setTroops(): void{
+    $this->troops = $this->troops + 3 + $this->conqueredCountries;
   }
 }

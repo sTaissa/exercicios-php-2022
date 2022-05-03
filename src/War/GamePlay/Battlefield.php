@@ -30,14 +30,16 @@ class Battlefield implements BattlefieldInterface {
     $dices = [];
 
     if($isAtacking){
-        $numberOfTroops = $numberOfTroops - 1;
+        $numberOfTroops--;
     }
 
     for($i = 0; $i < $numberOfTroops; $i++){
-        array_push(rand(1,6), $dices);
+        array_push($dices, rand(1,6));
     }
 
-    return rsort($dices);
+    rsort($dices);
+
+    return $dices;
   }
 
   /**
@@ -65,8 +67,8 @@ class Battlefield implements BattlefieldInterface {
         $smallestDice = $defendingDiceCount;
     }
 
-    for($i = 0; i < $smallestDice; $i++){
-        if($attackingDice[$i] < $defendingDice[$i]){
+    for($i = 0; $i < $smallestDice; $i++){
+        if($attackingDice[$i] <= $defendingDice[$i]){
             $attackingCountryDefeats++;
         } else{
             $defendingCountryDefeats++;

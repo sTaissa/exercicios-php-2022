@@ -28,7 +28,7 @@ class CountryList {
 
     $countries = [];
     foreach (array_keys($map) as $index => $name) {
-      if ($index) {
+      if ($name) {
         $countries[$name] = new ComputerPlayerCountry($name);
         readline_add_history($name);
       }

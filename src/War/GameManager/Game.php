@@ -90,47 +90,52 @@ class Game {
    */
   protected function playRound(): void {
     foreach ($this->getUnconqueredCountries() as $attackingCountry) {
-      print "----- Vez de " . $attackingCountry->getName() . "\n";
+      if(!$attackingCountry->isConquered()){
+        print "----- Vez de " . $attackingCountry->getName() . "\n";
 
-      $defendingCountry = NULL;
-      if ($attackingCountry instanceof ComputerPlayerCountry) {
-        $defendingCountry = $attackingCountry->chooseToAttack();
+        $defendingCountry = NULL;
+        if ($attackingCountry instanceof ComputerPlayerCountry) {
+          $defendingCountry = $attackingCountry->chooseToAttack();
+        }
+        elseif ($attackingCountry instanceof HumanPlayerCountry) {
+          $neighbors = $attackingCountry->getNeighbors();
+          $defendingCountryName = NULL;
+          do {
+            $typedName = readline("Digite o nome de um país para atacar ou deixe em branco para não atacar ninguém:\n");
+            $defendingCountryName = trim($typedName);
+          }
+          while ($defendingCountryName && !isset($neighbors[$defendingCountryName]));
+
+          if ($defendingCountryName) {
+            $defendingCountry = $this->countries[$defendingCountryName];
+          }
+        }
+
+        // If there is an attack, let's do battle.
+        if ($defendingCountry) {
+          print "  vai atacar " . $defendingCountry->getName() . "\n";
+
+          $attackingDice = $this->battlefield->rollDice($attackingCountry, TRUE);
+          $defendingDice = $this->battlefield->rollDice($defendingCountry, FALSE);
+
+          print "  dados de " . $attackingCountry->getName() . ": " . implode("-", $attackingDice) . "\n";
+          print "  dados de " . $defendingCountry->getName() . ": " . implode("-", $defendingDice) . "\n";
+
+          $this->battlefield->computeBattle($attackingCountry, $attackingDice, $defendingCountry, $defendingDice);
+
+          if ($defendingCountry->isConquered()) {
+            $attackingCountry->conquer($defendingCountry);
+            print "  " . $defendingCountry->getName() . " foi anexado por " . $attackingCountry->getName() . "!\n";
+          }
+          else {
+            print "  " . $defendingCountry->getName() . " conseguiu se defender!\n";
+          }
+        }
+        sleep(1);
       }
-      elseif ($attackingCountry instanceof HumanPlayerCountry) {
-        $neighbors = $attackingCountry->getNeighbors();
-        $defendingCountryName = NULL;
-        do {
-          $typedName = readline("Digite o nome de um país para atacar ou deixe em branco para não atacar ninguém:\n");
-          $defendingCountryName = trim($typedName);
-        }
-        while ($defendingCountryName && !isset($neighbors[$defendingCountryName]));
-
-        if ($defendingCountryName) {
-          $defendingCountry = $this->countries[$defendingCountryName];
-        }
-      }
-
-      // If there is an attack, let's do battle.
-      if ($defendingCountry) {
-        print "  vai atacar " . $defendingCountry->getName() . "\n";
-
-        $attackingDice = $this->battlefield->rollDice($attackingCountry, TRUE);
-        $defendingDice = $this->battlefield->rollDice($defendingCountry, FALSE);
-
-        print "  dados de " . $attackingCountry->getName() . ": " . implode("-", $attackingDice) . "\n";
-        print "  dados de " . $defendingCountry->getName() . ": " . implode("-", $defendingDice) . "\n";
-
-        $this->battlefield->computeBattle($attackingCountry, $attackingDice, $defendingCountry, $defendingDice);
-
-        if ($defendingCountry->isConquered()) {
-          $attackingCountry->conquer($defendingCountry);
-          print "  " . $defendingCountry->getName() . " foi anexado por " . $attackingCountry->getName() . "!\n";
-        }
-        else {
-          print "  " . $defendingCountry->getName() . " conseguiu se defender!\n";
-        }
-      }
-      sleep(1);
+    }
+    foreach($this->getUnconqueredCountries() as $country){
+      $country->setTroops();
     }
   }
 
