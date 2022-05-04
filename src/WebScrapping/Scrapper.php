@@ -4,6 +4,8 @@ namespace Galoa\ExerciciosPhp2022\WebScrapping;
 
 use DOMXPath;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
+use Box\Spout\Common\Entity\Style\CellAlignment;
 use Box\Spout\Common\Entity\Row;
 
 /**
@@ -43,9 +45,21 @@ class Scrapper {
       array_push($rows, array($id, $title, $type, $authors));
     }
 
+    //defines styles for xlsx file
+    $defaultStyle = (new StyleBuilder())
+                ->setFontName('Arial')
+                ->setFontSize(10)
+                ->setShouldWrapText()
+                ->build();
+
+    $titleStyle = (new StyleBuilder())
+               ->setFontBold()
+               ->build();
+
     //writes the data to xlsx file
     $writer = WriterEntityFactory::createXLSXWriter();
-    $writer->openToFile(__DIR__ . '/../../webscrapping/model.xlsx');
+    $writer->setDefaultRowStyle($defaultStyle)
+           ->openToFile(__DIR__ . '/../../webscrapping/model.xlsx');
 
     $titleCells = [
       WriterEntityFactory::createCell("ID"),
@@ -58,7 +72,7 @@ class Scrapper {
       array_push($titleCells, WriterEntityFactory::createCell("Author " . $i . " Institution"));
     }
       
-    $singleRow = WriterEntityFactory::createRow($titleCells);
+    $singleRow = WriterEntityFactory::createRow($titleCells, $titleStyle);
     $writer->addRow($singleRow);
 
     foreach($rows as $row){
