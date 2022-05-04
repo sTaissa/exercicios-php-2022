@@ -15,14 +15,14 @@ class Scrapper {
    * Loads paper information from the HTML and creates a XLSX file.
    */
   public function scrap(\DOMDocument $dom): void {
-    $writer = WriterEntityFactory::createXLSXWriter();
-    $writer->openToFile(__DIR__ . '/../../webscrapping/model.xlsx');
-
     //Find each article with xPath 
     $xPath = new DomXpath($dom);
     $domNodeList = $xPath->query('.//a[@class="paper-card p-lg bd-gradient-left"]');
 
-    //Adds each element of the article to a worksheet cell 
+    $rows = [];
+    $authorsNumber = 0;
+
+    //Gets the DOM data
     foreach($domNodeList as $article){
       $authors = [];
 
@@ -32,19 +32,43 @@ class Scrapper {
 
       foreach($article->childNodes[1]->childNodes as $span){
         if($span->nodeType == 1){
-          array_push($authors, array($span->nodeValue, $span->getAttribute("title")));
+          array_push($authors, array(rtrim($span->nodeValue, ";"), $span->getAttribute("title")));
         }
       }
 
-      $cells = [
-        WriterEntityFactory::createCell($id),
-        WriterEntityFactory::createCell($title),
-        WriterEntityFactory::createCell($type)
-      ];
+      if(count($authors) > $authorsNumber){
+        $authorsNumber = count($authors);
+      }
 
-      for($i=0; $i<count($authors); $i++){
-        array_push($cells, WriterEntityFactory::createCell($authors[$i][0]));
-        array_push($cells, WriterEntityFactory::createCell($authors[$i][1]));
+      array_push($rows, array($id, $title, $type, $authors));
+    }
+
+    //writes the data to xlsx file
+    $writer = WriterEntityFactory::createXLSXWriter();
+    $writer->openToFile(__DIR__ . '/../../webscrapping/model.xlsx');
+
+    $titleCells = [
+      WriterEntityFactory::createCell("ID"),
+      WriterEntityFactory::createCell("Title"),
+      WriterEntityFactory::createCell("Type"),
+    ];
+
+    for($i=1; $i<=$authorsNumber; $i++){
+      array_push($titleCells, WriterEntityFactory::createCell("Author " . $i));
+      array_push($titleCells, WriterEntityFactory::createCell("Author " . $i . " Institution"));
+    }
+      
+    $singleRow = WriterEntityFactory::createRow($titleCells);
+    $writer->addRow($singleRow);
+
+    foreach($rows as $row){
+      $cells = [];
+      array_push($cells, WriterEntityFactory::createCell($row[0]));
+      array_push($cells, WriterEntityFactory::createCell($row[1]));
+      array_push($cells, WriterEntityFactory::createCell($row[2]));
+      foreach($row[3] as $author){
+        array_push($cells, WriterEntityFactory::createCell($author[0]));
+        array_push($cells, WriterEntityFactory::createCell($author[1]));
       }
 
       $singleRow = WriterEntityFactory::createRow($cells);
